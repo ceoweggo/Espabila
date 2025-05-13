@@ -27,27 +27,65 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     user["id"] = str(user["_id"])
     return user
 
-@router.get("/{user_id}", response_model=User)
-async def get_user_by_id(user_id: str, current_user: UserInDB = Depends(get_current_user)):
-    """Get user by ID. Only accessible by admins or the user themselves."""
-    # Check if user is requesting their own info or is an admin
+@router.get("/{user_identifier}", response_model=User)
+async def get_user_by_identifier(
+    user_identifier: str, 
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Get user by ID or email. Only accessible by admins or the user themselves."""
+    # Extract current user's ID and role, handling both object and dict formats
     user_id_value = getattr(current_user, 'id', None) or current_user.get('user_id') if isinstance(current_user, dict) else None
+    email_value = getattr(current_user, 'email', None) or current_user.get('email') if isinstance(current_user, dict) else None
     role_value = getattr(current_user, 'role', None) or current_user.get('role') if isinstance(current_user, dict) else None
-    if user_id_value != user_id and role_value != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to access this user's information"
-        )
     
-    # Get user from database
-    user = await users_collection.find_one({"id": user_id})
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
+    # Determine if we're looking up by ID or email (simple email validation)
+    is_email = '@' in user_identifier
     
-    return user
+    try:
+        # Get user from database based on identifier type
+        if is_email:
+            query = {"email": user_identifier}
+            user = await users_collection.find_one(query)
+        else:
+            # Intentar primero como ObjectId
+            try:
+                query = {"_id": ObjectId(user_identifier)}
+                user = await users_collection.find_one(query)
+            except:
+                # Si falla, probar con id como string
+                query = {"id": user_identifier}
+                user = await users_collection.find_one(query)
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        # Asegúrate de que el ID esté en formato string para la respuesta
+        if "_id" in user and not "id" in user:
+            user["id"] = str(user["_id"])
+        
+        # Check if user is requesting their own info or is an admin
+        # Compare both ID and email for proper authorization
+        is_owner = (user_id_value == user.get('id') or email_value == user.get('email'))
+        is_admin = role_value == "admin"
+        
+        if not (is_owner or is_admin):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to access this user's information"
+            )
+        
+        return user
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving user: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving user: {str(e)}"
+        )
 
 @router.get("/{user_id}/profile", response_model=Dict[str, Any])
 async def get_user_profile(user_id: str, current_user: dict = Depends(get_current_user)):
@@ -133,18 +171,6 @@ async def get_user_tests(current_user: UserInDB = Depends(get_current_user)):
             del test["_id"]
     return tests
 
-@router.get("/{email}/email", response_model=User)
-async def get_user_by_email(email: EmailStr):
-    """Get user by email address"""
-    user = await users_collection.find_one({"email": email})
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-    
-    return user
-
 @router.get("/me/subscriptions", response_model=Optional[UserSubscription])
 async def get_current_user_subscription(current_user: Dict[str, Any] = Depends(get_current_active_user)):
     """
@@ -162,7 +188,6 @@ async def get_current_user_subscription(current_user: Dict[str, Any] = Depends(g
     
     # Return subscription if exists
     return user.get("subscription")
-
 
 @router.put("/me/subscriptions", response_model=UserSubscription)
 async def update_current_user_subscription(
@@ -196,36 +221,3 @@ async def update_current_user_subscription(
     
     # Return subscription
     return updated_user.get("subscription")
-
-
-@router.get("/{user_id}", response_model=UserResponse)
-async def get_user_by_id(
-    user_id: str,
-    current_user: Dict[str, Any] = Depends(get_current_active_user)
-):
-    """
-    Get a user by ID
-    """
-    # Check if user has permission to access this user
-    # Currently, only admins and the user themselves can access user profiles
-    user_id_value = getattr(current_user, 'id', None) or current_user.get('user_id') if isinstance(current_user, dict) else None
-    role_value = getattr(current_user, 'role', None) or current_user.get('role') if isinstance(current_user, dict) else None
-    if user_id_value != user_id and role_value != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions"
-        )
-    
-    # Get user by ID
-    user = await users_collection.find_one({"_id": ObjectId(user_id)})
-    
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-    
-    # Convert ObjectId to string for response
-    user["id"] = str(user["_id"])
-    
-    return user 

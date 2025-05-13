@@ -132,24 +132,69 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Check if user is already in the database
-  const getUserByEmail = async (email: string) => {
+// Mejora en la función getUserByEmail en AuthContext.tsx
+
+const getUserByEmail = async (email: string) => {
+  try {
+    // Asegúrate de codificar el email para manejar caracteres especiales
+    const encodedEmail = encodeURIComponent(email);
+    const url = `${config.apiUrl}/v1/auth/users/${encodedEmail}`;
+    console.log('[getUserByEmail] URL:', url);
+    
+    // Añade manejo de timeout para evitar esperas prolongadas
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 segundos de timeout
+    
     try {
-      const url = `${config.apiUrl}/v1/auth/users/${email}/email`;
-      console.log('[getUserByEmail] URL:', url);
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('globodain_access_token') || ''}`
+        },
+        credentials: 'include',
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId); // Limpiar el timeout si la petición se completa
+      
+      console.log("[getUserByEmail] Response:", response);
       console.log('[getUserByEmail] Status:', response.status);
-      if (!response.ok) {
-        console.error('[getUserByEmail] Error al obtener usuario por email:', response.status);
+      
+      if (response.status === 404) {
+        console.log('[getUserByEmail] Usuario no encontrado');
         return null;
       }
+      
+      if (!response.ok) {
+        try {
+          const errorData = await response.json();
+          console.error('[getUserByEmail] Error al obtener usuario:', errorData);
+          return null;
+        } catch {
+          console.error('[getUserByEmail] Error al obtener usuario:', response.status, response.statusText);
+          return null;
+        }
+      }
+      
       const data = await response.json();
       console.log('[getUserByEmail] Usuario encontrado:', data);
       return data;
-    } catch (error) {
-      console.error('[getUserByEmail] Error al obtener usuario por email:', error);
-      return null;
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        console.error('[getUserByEmail] La solicitud superó el tiempo límite');
+        return { error: 'Timeout', isConnectionError: true };
+      }
+      throw fetchError;
     }
-  };
+  } catch (error) {
+    console.error('[getUserByEmail] Error en la solicitud:', error);
+    // Si el servidor no está disponible, devolvemos null para manejar el caso como si el usuario no existiera
+    // Esto permitirá que la aplicación siga funcionando con funcionalidad limitada
+    return null;
+  }
+};
 
   // Función para crear usuario en la API
   const createUserInAPI = async (userData: any) => {
