@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a EspaBila</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background-color: #6366f1;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .logo {
+            max-width: 180px;
+            height: auto;
+        }
+        
+        .content {
+            padding: 30px;
+            line-height: 1.6;
+        }
+        
+        h1 {
+            color: #4338ca;
+            margin-top: 0;
+        }
+        
+        p {
+            margin-bottom: 16px;
+            color: #4b5563;
+        }
+        
+        ul {
+            margin-bottom: 24px;
+            padding-left: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+            color: #4b5563;
+        }
+        
+        .button {
+            display: inline-block;
+            background-color: #6366f1;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin: 16px 0;
+        }
+        
+        .button:hover {
+            background-color: #4338ca;
+        }
+        
+        .footer {
+            background-color: #f3f4f6;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .social {
+            margin-bottom: 16px;
+        }
+        
+        .social a {
+            display: inline-block;
+            margin: 0 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://espabila.com/logo.png" alt="EspaBila Logo" class="logo">
+        </div>
+        <div class="content">
+            <h1>¡Bienvenido a EspaBila!</h1>
+            <p>Hola {{ user_name }},</p>
+            <p>¡Gracias por registrarte en {{ app_name }}! Estamos encantados de que te unas a nuestra comunidad educativa.</p>
+            <p>Con EspaBila, podrás:</p>
+            <ul>
+                <li>Acceder a pruebas y exámenes para mejorar tu español</li>
+                <li>Realizar un seguimiento de tu progreso</li>
+                <li>Practicar con diferentes tipos de ejercicios</li>
+                <li>Prepararte para exámenes oficiales</li>
+            </ul>
+            <p>Para comenzar, inicia sesión en tu cuenta:</p>
+            <div style="text-align: center;">
+                <a href="{{ login_url }}" class="button">Iniciar Sesión</a>
+            </div>
+            <p>Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos.</p>
+            <p>¡Te deseamos mucho éxito en tu aprendizaje!</p>
+            <p>Saludos,<br>El equipo de EspaBila</p>
+        </div>
+        <div class="footer">
+            <div class="social">
+                <a href="https://facebook.com/espabila"><img src="https://espabila.com/email/facebook.png" alt="Facebook" width="24"></a>
+                <a href="https://twitter.com/espabila"><img src="https://espabila.com/email/twitter.png" alt="Twitter" width="24"></a>
+                <a href="https://instagram.com/espabila"><img src="https://espabila.com/email/instagram.png" alt="Instagram" width="24"></a>
+            </div>
+            <p>&copy; 2023 EspaBila. Todos los derechos reservados.</p>
+            <p>
+                <small>Si no has solicitado esta cuenta, puedes ignorar este correo electrónico.</small>
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,28 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Environment variables
+.env
+*.env
+
+# Git
+.git
+.gitignore
+
+# Other files
+README.md
+*.md
+*.log
+*.swp
+.DS_Store 
