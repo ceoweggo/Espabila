@@ -3,6 +3,8 @@ export type UserProfile = {
   name: string;
   email: string;
   profileType: string | null;
+  mbtiRaw?: string; // El código MBTI sin formato (como "INFP")
+  mbtiGroup?: string; // The MBTI group (e.g., "Diplomáticos", "Analistas")
   skills: string[];
   interests: string[];
   similiarPersonalities: string[];
@@ -24,9 +26,9 @@ export type TestResult = {
   skills: string[];
   interests: string[];
   similiarPersonalities: string[];
-  recommendedProfessions: string[];
+  recommendedProfessions: (string | { id: string; name: string; name_es: string })[];
+  recommendedActivities: (string | { id: string; name: string; name_es: string })[];
   advice: string;
-  recommendedActivities: string[];
 }
 
 export type Profile = {
@@ -49,6 +51,12 @@ export type Profile = {
   recommendedActivitiesEs: string[];
 }
 
+export type ScaleValueRange = {
+  min: number;
+  max: number;
+  [key: string]: any; // Rasgos y valores adicionales para este rango
+}
+
 export type QuestionOption = {
   valor?: string;
   descripcion?: string;
@@ -60,7 +68,7 @@ export type Question = {
   text?: string;
   textEs?: string;
   tipo?: 'unica' | 'multiple' | 'abierta' | 'escala';
-  type?: 'multiple-choice' | 'open' | 'scale';
+  type?: 'multiple-select' | 'multiple-choice' | 'open' | 'scale';
   opciones?: (string | QuestionOption)[];
   options?: (string | QuestionOption)[];
   optionsEs?: (string | QuestionOption)[];
@@ -71,16 +79,22 @@ export type Question = {
   valorMaximo?: number;
   maxValue?: number;
   items?: string[];
-  itemsEn?: string[];
+  itemsEs?: string[];
   subPregunta?: string;
   subQuestion?: string;
   minLabel?: string;
   maxLabel?: string;
   minLabelEs?: string;
   maxLabelEs?: string;
-  traits?: Record<string, number>;
-  mbti_dimension?: string;
-  ikigai_area?: string;
+  //traits?: Record<string, number>; // It deleted in the new version 
+  optionValues?: Array<Record<string, any>>; // Question type = multiple-choice / multiple-select
+  baseTraits?: Record<string, number>; // Question type = Open
+  mbti_dimension?: string; // Question type = Open
+  ikigai_area?: string; // Question type = Open
+  scaleValues?: ScaleValueRange[]; // Question type = Scale - global para toda la pregunta
+  itemScaleValues?: ScaleValueRange[][]; // NUEVO: valores específicos para cada ítem en preguntas de escala
+  keywordAnalysis?: Record<string, string[]>; // Keywords in English
+  keywordAnalysisEs?: Record<string, string[]>; // Keywords in Spanish
 }
 
 export type QuestionBlock = {

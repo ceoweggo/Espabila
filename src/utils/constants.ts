@@ -7,6 +7,7 @@ export const ROUTES = {
   TEST: '/test',
   RESULTS: '/results',
   PROFILE: '/profile',
+  PROFILE_SETTINGS: '/profile/settings',
   AUTH_CALLBACK: '/auth/sso/callback',
   AUTH_LOGOUT: '/auth/logout',
   AUTH_LOGOUT_CALLBACK: '/auth/sso/logout-callback',

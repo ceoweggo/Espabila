@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 # Authentication configuration
 SECRET_KEY = os.getenv("SECRET_KEY", "defaultsecretkey")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))  # 24 hours by default
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 # Password context for hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -42,9 +42,9 @@ def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta]
     
     # Set expiration time
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     
     # Add expiration to payload
     to_encode.update({"exp": expire})
@@ -75,7 +75,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any
             raise credentials_exception
         
         # Check if token has expired
-        if datetime.utcnow() > datetime.fromtimestamp(exp):
+        if datetime.now() > datetime.fromtimestamp(exp):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token has expired",

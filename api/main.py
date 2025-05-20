@@ -65,9 +65,8 @@ async def startup_event():
     except Exception as e:
         logger.error(f"Error inicializando datos de prueba: {e}")
 
-# Include routers with prefixes
-# Movemos las importaciones dentro de una función para evitar importaciones circulares
 def setup_routes():
+    # Skip circular imports
     from routes.auth import router as auth_router
     from routes.tests import router as tests_router
     from routes.users import router as users_router

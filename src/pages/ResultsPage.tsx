@@ -35,7 +35,20 @@ const ResultsPage = () => {
       setError(null);
       try {
         const apiToken = localStorage.getItem('etedata_api_token');
-        const response = await fetch(`${config.apiUrl}/v1/tests/${testId}`, {
+        
+        // Determinar la URL correcta según el formato del ID
+        // Si la ruta incluye "session/", usar el endpoint de resultados de sesión
+        let apiUrl;
+        if (testId && location.pathname.includes('session/')) {
+          // Para IDs de sesión, usar el endpoint de resultados de sesión directamente
+          apiUrl = `${config.apiUrl}/v1/tests/results/${testId.replace('session/', '')}`;
+        } else {
+          // Para IDs de resultado, usar el endpoint de resultados directamente
+          apiUrl = `${config.apiUrl}/v1/tests/results/${testId}`;
+        }
+        
+        console.log('[ResultsPage] Fetching results from:', apiUrl);
+        const response = await fetch(apiUrl, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${apiToken}`
@@ -44,17 +57,18 @@ const ResultsPage = () => {
         if (!response.ok) throw new Error('Error fetching results');
         const data = await response.json();
         console.log('[ResultsPage] Respuesta cruda del backend:', data);
-        const raw = data.profile || data.result || data;
+        
+        // Mapear correctamente los datos del resultado del test
         const mapped: TestResult = {
-          profileType: raw.profileType || raw.profile_type || '',
-          mbtiType: raw.mbtiType || raw.mbti_type || '',
-          mbtiGroup: raw.mbtiGroup || raw.mbti_group || '',
-          skills: raw.skills || [],
-          interests: raw.interests || [],
-          similiarPersonalities: raw.similiarPersonalities || raw.similarPersonalities || raw.similar_personalities || [],
-          recommendedProfessions: raw.recommendedProfessions || raw.recommended_professions || [],
-          advice: raw.advice || '',
-          recommendedActivities: raw.recommendedActivities || raw.recommended_activities || [],
+          profileType: data.profileType || data.mbti_type || '',
+          mbtiType: data.mbtiType || data.mbti_type || '',
+          mbtiGroup: data.mbtiGroup || data.mbti_group || '',
+          skills: data.skills || data.recommended_skills || [],
+          interests: data.interests || data.recommended_interests || [],
+          similiarPersonalities: data.similiarPersonalities || data.recommended_personalities || [],
+          recommendedProfessions: data.recommendedProfessions || data.recommended_professions || [],
+          advice: data.advice || (data.recommended_advices?.join(', ') || ''),
+          recommendedActivities: data.recommendedActivities || data.recommended_activities || [],
         };
         console.log('[ResultsPage] Objeto mapeado para UI:', mapped);
         setResult(mapped);
@@ -66,7 +80,7 @@ const ResultsPage = () => {
       }
     };
     if (testId) fetchResult();
-  }, [testId, t, location.state]);
+  }, [testId, t, location.state, location.pathname]);
 
   if (loading) {
     return <Loading />;
@@ -83,7 +97,7 @@ const ResultsPage = () => {
     );
   }
 
-  if (!result || typeof result.profileType !== 'string' || result.profileType.length === 0) {
+  if (!result || !result.mbtiType || result.mbtiType.length === 0) {
     return (
       <div className="container mx-auto py-6">
         <h2 className="text-xl font-bold text-red-500 dark:text-red-400">{t('results.error_loading')}</h2>
@@ -95,13 +109,76 @@ const ResultsPage = () => {
   }
 
   const handleDownloadReport = () => {
-    // In a real app, this would generate and download a PDF
-    console.log('Downloading report...');
+    if (!result) return;
+    
+    // Crear un objeto con los datos del test para exportar como PDF
+    const reportData = {
+      title: `Personality Test Results - ${result.mbtiType}`,
+      date: new Date().toLocaleDateString(),
+      mbtiType: result.mbtiType,
+      skills: result.skills,
+      interests: result.interests,
+      personalities: result.similiarPersonalities,
+      professions: result.recommendedProfessions,
+      advice: result.advice,
+      activities: result.recommendedActivities
+    };
+    
+    // En una implementación real, aquí se utilizaría una biblioteca para generar PDF
+    // Como jsPDF, pdfmake, html2pdf o similar
+    
+    // Versión simple: crear un blob con JSON para demostración
+    const jsonString = JSON.stringify(reportData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    // Crear un enlace para descargar
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `personality-report-${result.mbtiType}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    
+    // Limpiar
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+    
+    // TODO: En un entorno de producción, se llamaría a un endpoint del backend para generar el PDF
+    console.log('Reporte descargado:', reportData);
   };
 
   const handleEmailReport = () => {
-    // In a real app, this would send the report via email
-    console.log('Emailing report...');
+    if (!result || !user) return;
+    
+    // Mostrar un diálogo o modal para confirmar el envío del email
+    if (window.confirm(t('results.confirm_email_send'))) {
+      // En un entorno real, aquí se llamaría a un endpoint del backend para enviar el email
+      
+      // Simulación del envío de email
+      console.log('Enviando email con resultados del test a:', user.email);
+      console.log('Datos del test:', {
+        mbtiType: result.mbtiType,
+        skills: result.skills,
+        interests: result.interests,
+        personalities: result.similiarPersonalities,
+        professions: result.recommendedProfessions
+      });
+      
+      // Mostrar confirmación al usuario
+      alert(t('results.email_sent_confirmation'));
+      
+      // TODO: En una implementación real, esto sería una llamada API:
+      // await fetch(`${config.apiUrl}/v1/tests/email-results`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${apiToken}`
+      //   },
+      //   body: JSON.stringify({ testId, email: user.email })
+      // });
+    }
   };
 
   return (
@@ -118,7 +195,7 @@ const ResultsPage = () => {
 
         <div className="mb-6 flex flex-col items-center">
           <Avatar className="h-24 w-24 mx-auto bg-primary">
-            <span className="text-2xl font-bold">{typeof result.profileType === 'string' && result.profileType.length > 0 ? result.profileType.charAt(0) : "?"}</span>
+            <span className="text-2xl font-bold">{result.mbtiType && result.mbtiType.length > 0 ? result.mbtiType.charAt(0) : "?"}</span>
           </Avatar>
           <h1 className="text-3xl font-bold mt-4 text-center text-primary dark:text-white">
             {t('results.title')}
@@ -151,7 +228,7 @@ const ResultsPage = () => {
           <Card className="p-6 shadow-md border border-border dark:bg-gray-800 dark:border-gray-700">
             <div className="flex flex-col md:flex-row gap-4 items-start justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-primary dark:text-white">{result.profileType}</h2>
+                <h2 className="text-2xl font-bold text-primary dark:text-white">{result.mbtiType || result.profileType}</h2>
               </div>
               <div className="flex space-x-2">
                 <Button variant="outline" size="sm" onClick={handleDownloadReport} className="flex items-center gap-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:bg-gray-600">
@@ -168,7 +245,7 @@ const ResultsPage = () => {
             <Separator className="my-6 dark:bg-gray-700" />
 
             {viewMode === 'summary' ? (
-              <ResultSummary result={result} />
+              <ResultSummary result={result} onDownloadReport={handleDownloadReport} onEmailReport={handleEmailReport} />
             ) : (
               <MbtiSection result={result} />
             )}

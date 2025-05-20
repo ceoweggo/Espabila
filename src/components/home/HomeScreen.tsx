@@ -36,7 +36,7 @@ const HomeScreen = ({ user }: HomeScreenProps) => {
   if (!user.profileType) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="w-full max-w-6xl grid grid-cols-1 gap-8">
           <div className="p-8 border rounded-lg bg-card dark:bg-gray-800 flex flex-col items-center">
             <h4 className="text-xl font-bold mb-2">{t('dashboard.quick_test')}</h4>
             <p className="text-muted-foreground mb-2">{t('test.quick_details')}</p>
@@ -45,6 +45,7 @@ const HomeScreen = ({ user }: HomeScreenProps) => {
               {t('test.start')}
             </Button>
           </div>
+          {/* Evaluación completa desactivada temporalmente
           <div className="p-8 border rounded-lg bg-card dark:bg-gray-800 flex flex-col items-center">
             <h4 className="text-xl font-bold mb-2">{t('dashboard.comprehensive_test')}</h4>
             <p className="text-muted-foreground mb-2">{t('test.comprehensive_details')}</p>
@@ -53,9 +54,10 @@ const HomeScreen = ({ user }: HomeScreenProps) => {
               {t('test.start')}
             </Button>
           </div>
+          */}
         </div>
         <div className="mt-6 text-muted-foreground text-center">
-          Aún no tienes un rol de personalidad asignado
+          {t('dashboard.no_tests_yet')}
         </div>
       </div>
     );
@@ -102,15 +104,20 @@ const HomeScreen = ({ user }: HomeScreenProps) => {
                         {t('dashboard.top_skills')}
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {user.skills.length > 0 ? (
-                          user.skills.slice(0, 4).map((skill) => (
-                            <span key={skill} className="px-2 py-1 bg-secondary/10 dark:bg-secondary/20 text-secondary dark:text-secondary/90 rounded-full text-xs">
-                              {skill}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-muted-foreground dark:text-gray-400 text-sm">{t('dashboard.no_skills')}</span>
-                        )}
+                      {user.skills.length > 0 ? (
+                        user.skills.slice(0, 4).map((skill) => (
+                          <span 
+                            key={skill} 
+                            className="px-2 py-1 bg-secondary/10 dark:bg-secondary/20 text-secondary dark:text-secondary/90 rounded-full text-xs"
+                          >
+                            {skill}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-muted-foreground dark:text-gray-400 text-sm">
+                          {t('dashboard.no_skills')}
+                        </span>
+                      )}
                       </div>
                     </div>
 
@@ -161,7 +168,7 @@ const HomeScreen = ({ user }: HomeScreenProps) => {
                         <div className="space-y-2">
                           {user.completedTests.slice(0, 2).map((test) => (
                             <div key={test.id} className="flex justify-between items-center text-sm bg-muted/30 dark:bg-gray-700/30 p-2 rounded">
-                              <span className="text-primary dark:text-white">{test.type}</span>
+                              <span className="text-primary dark:text-white">{t(`dashboard.last_test_type.${test.type}`)}</span>
                               <span className="text-muted-foreground dark:text-gray-400">
                                 {new Date(test.date).toLocaleDateString()}
                               </span>
@@ -233,7 +240,7 @@ const HomeScreen = ({ user }: HomeScreenProps) => {
           <Brain className="text-accent" size={20} />
           {t('dashboard.tests')}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           <Card className="hover:border-accent/50 cursor-pointer transition-all shadow-sm dark:bg-gray-800 dark:border-gray-700 dark:hover:border-accent/50 overflow-hidden">
             <CardHeader className="border-b border-border/60 pb-6 dark:border-gray-700 bg-muted/30 dark:bg-gray-800/70">
               <CardTitle className="text-primary dark:text-white">{t('test.quick')}</CardTitle>
@@ -251,6 +258,7 @@ const HomeScreen = ({ user }: HomeScreenProps) => {
             </CardFooter>
           </Card>
 
+          {/* Evaluación completa desactivada temporalmente 
           <Card className="hover:border-accent/50 cursor-pointer transition-all shadow-sm dark:bg-gray-800 dark:border-gray-700 dark:hover:border-accent/50 overflow-hidden">
             <CardHeader className="border-b border-border/60 pb-6 dark:border-gray-700 bg-muted/30 dark:bg-gray-800/70">
               <CardTitle className="text-primary dark:text-white">{t('test.comprehensive')}</CardTitle>
@@ -267,6 +275,7 @@ const HomeScreen = ({ user }: HomeScreenProps) => {
               </Button>
             </CardFooter>
           </Card>
+          */}
         </div>
       </section>
     </div>

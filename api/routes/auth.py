@@ -50,11 +50,11 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     # Update last login time
     await users_collection.update_one(
         {"_id": user["_id"]},
-        {"$set": {"last_login": datetime.utcnow()}}
+        {"$set": {"last_login": datetime.now()}}
     )
     
     # Return token
-    expires_at = datetime.utcnow() + access_token_expires
+    expires_at = datetime.now() + access_token_expires
     
     # Obtener el tipo de perfil del usuario
     profile_type = await get_user_profile_type(user)
@@ -108,8 +108,8 @@ async def register_user(user: UserCreate):
         "hashed_password": hashed_password,
         "active": True,
         "role": "user",
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow(),
+        "created_at": datetime.now(),
+        "updated_at": datetime.now(),
         "metadata": metadata
     }
     
@@ -178,11 +178,11 @@ async def create_sso_token(request: Request):
                 new_user = {
                     "email": user_data.get("email"),
                     "name": full_name or user_data.get("name", user_data.get("email", "Usuario")),
-                    "hashed_password": get_password_hash("!S$0" + datetime.utcnow().isoformat()),  # Random password
+                    "hashed_password": get_password_hash("!S$0" + datetime.now().isoformat()),  # Random password
                     "active": True,
                     "role": "user",
-                    "created_at": datetime.utcnow(),
-                    "updated_at": datetime.utcnow(),
+                    "created_at": datetime.now(),
+                    "updated_at": datetime.now(),
                     "metadata": {
                         "sso_provider": user_data.get("provider", "unknown") or "globodain",
                         "sso_id": user_data.get("id") or user_data.get("sub"),
@@ -245,7 +245,7 @@ async def create_sso_token(request: Request):
                 
                 # Actualizar usuario si hay cambios
                 if update_data:
-                    update_data["updated_at"] = datetime.utcnow()
+                    update_data["updated_at"] = datetime.now()
                     await users_collection.update_one(
                         {"_id": user["_id"]},
                         {"$set": update_data}
@@ -264,11 +264,11 @@ async def create_sso_token(request: Request):
         # Update last login time
         await users_collection.update_one(
             {"_id": user["_id"]},
-            {"$set": {"last_login": datetime.utcnow()}}
+            {"$set": {"last_login": datetime.now()}}
         )
         
         # Return token
-        expires_at = datetime.utcnow() + access_token_expires
+        expires_at = datetime.now() + access_token_expires
         
         # Obtener el tipo de perfil del usuario
         profile_type = await get_user_profile_type(user)
@@ -348,7 +348,7 @@ async def request_password_reset(email: str):
         {"_id": user["_id"]},
         {"$set": {
             "reset_token": reset_token,
-            "reset_token_expires": datetime.utcnow() + reset_token_expires
+            "reset_token_expires": datetime.now() + reset_token_expires
         }}
     )
     
@@ -393,7 +393,7 @@ async def confirm_password_reset(token: str, new_password: str):
         
         # Check if token is expired
         reset_token_expires = user.get("reset_token_expires")
-        if not reset_token_expires or datetime.utcnow() > reset_token_expires:
+        if not reset_token_expires or datetime.now() > reset_token_expires:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Reset token has expired"
@@ -414,7 +414,7 @@ async def confirm_password_reset(token: str, new_password: str):
                 "hashed_password": hashed_password,
                 "reset_token": None,
                 "reset_token_expires": None,
-                "updated_at": datetime.utcnow()
+                "updated_at": datetime.now()
             }}
         )
         

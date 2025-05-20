@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/lib/TranslationProvider';
 import { LanguageSelector } from './LanguageSelector';
 import { Button } from '@/components/ui/button';
-import { Sun, Moon, LogOut, User, LayoutDashboard, History, Settings } from 'lucide-react';
+import { Sun, Moon, LogOut, User, LayoutDashboard, History, Settings, BarChart } from 'lucide-react';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -39,6 +39,10 @@ export function Navbar() {
     toast.info(`${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} ${t('theme.activated')}`);
   };
 
+  const navigateToSettings = () => {
+    navigate(ROUTES.PROFILE_SETTINGS);
+  };
+  
   const navigateToProfile = () => {
     navigate(ROUTES.PROFILE);
   };
@@ -47,13 +51,12 @@ export function Navbar() {
     <nav className="border-b border-border/40 bg-primary text-white shadow-sm">
       <div className="container mx-auto flex justify-between items-center py-3">
         <div className="flex items-center space-x-4">
-          <Link to={ROUTES.DASHBOARD} className="text-lg font-semibold text-white flex items-center">
-            <span className="text-accent font-bold mr-1">Espa</span>
-            <span>Bila</span>
+          <Link to={ROUTES.DASHBOARD} className="me-4">
+            <span className="text-sm font-medium hover:text-accent transition-colors flex items-center gap-2">Dashboard</span>
           </Link>
           
           {isAuthenticated && (
-            <div className="hidden md:flex space-x-6 ml-10">
+            <div className=" md:flex space-x-6 ml-10">
               <Link to={ROUTES.TESTS_HISTORY} className="text-sm font-medium hover:text-accent transition-colors flex items-center gap-2">
                 <History size={16} />
                 {t('nav.tests')}
@@ -79,7 +82,7 @@ export function Navbar() {
                   <span className="font-medium">{user?.first_name || (user?.name ? user.name.split(' ')[0] : 'Perfil')}</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="border-border w-56 bg-background text-foreground dark:bg-gray-900 dark:text-white/90">
+              <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 shadow-lg border dark:border-gray-700">
                 <DropdownMenuLabel className="dark:text-white/90 flex items-center gap-2">
                   <div>
                     <div className="font-medium">{user?.first_name || (user?.name ? user.name : '')}</div>
@@ -87,9 +90,9 @@ export function Navbar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="dark:bg-gray-700" />
-                <DropdownMenuItem onClick={navigateToProfile} className="flex gap-2 cursor-pointer hover:text-accent dark:text-white/90 dark:hover:text-accent">
-                  <User size={16} className="dark:text-gray-400" />
-                  {t('profile.title')}
+                <DropdownMenuItem onClick={navigateToSettings} className="flex gap-2 cursor-pointer hover:text-accent dark:text-white/90 dark:hover:text-accent">
+                  <Settings size={16} className="dark:text-gray-400" />
+                  {t('profile.settings')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={toggleTheme} className="flex gap-2 cursor-pointer hover:bg-accent/20 hover:text-foreground dark:text-white/90 dark:hover:text-accent">
                   {theme === 'dark' ? 
@@ -99,7 +102,7 @@ export function Navbar() {
                   {t(theme === 'dark' ? 'theme.light' : 'theme.dark')}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="dark:bg-gray-700" />
-                <DropdownMenuItem onClick={handleLogout} className="flex gap-2 cursor-pointer text-destructive hover:bg-destructive/10 hover:text-destructive dark:text-red-400 dark:hover:text-red-300">
+                <DropdownMenuItem onClick={handleLogout} className="flex gap-2 cursor-pointer text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300">
                   <LogOut size={16} />
                   {t('nav.logout')}
                 </DropdownMenuItem>

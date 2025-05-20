@@ -53,14 +53,10 @@ const AuthPage = () => {
             <p className="text-lg text-muted-foreground dark:text-gray-300">
               {t('auth.description')}
             </p>
-            <div className="py-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="py-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 bg-accent/10 dark:bg-accent/20 rounded-lg border border-accent/20 dark:border-accent/30">
                 <h3 className="font-semibold mb-2 text-primary dark:text-white">{t('auth.identify_strengths.title')}</h3>
                 <p className="text-sm text-muted-foreground dark:text-gray-300">{t('auth.identify_strengths.description')}</p>
-              </div>
-              <div className="p-4 bg-muted dark:bg-gray-700 rounded-lg border border-border/60 dark:border-gray-600">
-                <h3 className="font-semibold mb-2 text-primary dark:text-white">{t('auth.find_direction.title')}</h3>
-                <p className="text-sm text-muted-foreground dark:text-gray-300">{t('auth.find_direction.description')}</p>
               </div>
               <div className="p-4 bg-primary/5 dark:bg-primary/20 rounded-lg border border-primary/10 dark:border-primary/30">
                 <h3 className="font-semibold mb-2 text-primary dark:text-white">{t('auth.gain_insights.title')}</h3>

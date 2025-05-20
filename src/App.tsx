@@ -10,6 +10,7 @@ import TestPage from "./pages/TestPage";
 import ResultsPage from "./pages/ResultsPage";
 import TestHistoryPage from "./pages/TestHistoryPage";
 import ProfilePage from "./pages/ProfilePage";
+import UserProfilePage from "./pages/UserProfilePage";
 import NotFound from "./pages/NotFound";
 import { TranslationProvider } from "./lib/TranslationProvider";
 import { AuthProvider } from "./lib/sso/AuthContext";
@@ -102,6 +103,14 @@ const App = () => (
                 />
                 <Route 
                   path={ROUTES.PROFILE} 
+                  element={
+                    <ProtectedRoute>
+                      <UserProfilePage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path={ROUTES.PROFILE_SETTINGS} 
                   element={
                     <ProtectedRoute>
                       <ProfilePage />

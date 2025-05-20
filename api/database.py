@@ -34,10 +34,21 @@ async def lifespan_db(app=None):
 
 # Collections
 users_collection = database.users
+profiles_collection = database.profiles
 tests_collection = database.tests
 test_results_collection = database.test_results
 test_sessions_collection = database.test_sessions
-test_definitions_collection = database.test_definitions
+test_profiles_collection = database.test_profiles
+
+## Collections to process tests
+test_blocks_collection = database.test_blocks
+test_traits_collection = database.test_traits
+test_people_collection = database.test_people
+test_professions_collection = database.test_professions
+test_recommended_activities_collection = database.test_recommended_activities
+test_skills_collection = database.test_skills
+test_advices_collection = database.test_advices
+test_interests_collection = database.test_interests
 
 async def init_db():
     try:
